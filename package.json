@@ -6,7 +6,7 @@
   "author": "GKMS Project Team - KSNUAHS Shivamogga",
   "license": "ISC",
   "scripts": {
-    "start": "electron .",
+    "start": "node node_modules/electron/cli.js .",
     "build": "electron-builder --win",
     "publish": "electron-builder --win --publish always"
   },
