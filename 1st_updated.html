@@ -811,6 +811,26 @@
         #pcDropdown::-webkit-scrollbar { width: 4px; }
         #pcDropdown::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
 
+        body.lang-en .kan-text { display: none !important; }
+        body.lang-kan .en-text { display: none !important; }
+        .lang-btn {
+            background: linear-gradient(135deg, #995F2F, #622B14);
+            border: 1px solid rgba(228,214,169,0.3);
+            color: #fff;
+            padding: 0.45rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .lang-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(98,43,20,0.25);
+        }
         </style>
 </head>
 <body>
@@ -843,13 +863,21 @@
             <div class="logo">
                 <div class="logo-icon">☁️</div>
                 <div class="logo-text">
-                    <h1>WEATHER</h1>
-                    <p>Karnataka Forecast</p>
+                    <h1>
+                        <span class="en-text">WEATHER</span>
+                        <span class="kan-text">ಹವಾಮಾನ</span>
+                    </h1>
+                    <p>
+                        <span class="en-text">Karnataka Forecast</span>
+                        <span class="kan-text">ಕರ್ನಾಟಕ ಮುನ್ಸೂಚನೆ</span>
+                    </p>
                 </div>
             </div>
             <div class="header-right">
-                <button id="viewMapBtn" style="background:linear-gradient(135deg,#995F2F,#622B14);padding:0.45rem 1rem;font-size:0.82rem;font-weight:600;border-radius:0.5rem;">
-                    🗺️ Map View
+                <button id="langToggleBtn" onclick="toggleLanguage()" class="lang-btn">🌐 Kannada</button>
+                <button id="viewMapBtn" style="background:linear-gradient(135deg,#995F2F,#622B14);padding:0.45rem 1rem;font-size:0.82rem;font-weight:600;border-radius:0.5rem;" onclick="navigateToMap()">
+                    <span class="en-text">🗺️ Map View</span>
+                    <span class="kan-text">🗺️ ನಕ್ಷೆ ವೀಕ್ಷಣೆ</span>
                 </button>
                 <div class="live-indicator">
                     <div class="live-dot"></div>
@@ -1016,9 +1044,18 @@
 
         <!-- TAB NAV -->
         <div class="tab-nav">
-            <button class="tab-btn active" id="tabPincode" onclick="switchTab('pincode')">🔍 Search by Pincode</button>
-            <button class="tab-btn" id="tabDistrict" onclick="switchTab('district')">📍 Browse District &rarr; Taluk</button>
-            <button class="tab-btn" id="tabMap" onclick="navigateToMap()">🗺️ Full Map View ↗</button>
+            <button class="tab-btn active" id="tabPincode" onclick="switchTab('pincode')">
+                <span class="en-text">🔍 Search by Pincode</span>
+                <span class="kan-text">🔍 ಪಿನ್‌ಕೋಡ್ ಮೂಲಕ ಹುಡುಕಿ</span>
+            </button>
+            <button class="tab-btn" id="tabDistrict" onclick="switchTab('district')">
+                <span class="en-text">📍 Browse District &rarr; Taluk</span>
+                <span class="kan-text">📍 ಜಿಲ್ಲಾವಾರು &rarr; ತಾಲೂಕು ವೀಕ್ಷಣೆ</span>
+            </button>
+            <button class="tab-btn" id="tabMap" onclick="navigateToMap()">
+                <span class="en-text">🗺️ Full Map View ↗</span>
+                <span class="kan-text">🗺️ ಪೂರ್ಣ ನಕ್ಷೆ ವೀಕ್ಷಣೆ ↗</span>
+            </button>
         </div>
 
         <!-- TAB 1: PINCODE SEARCH -->
@@ -1178,7 +1215,10 @@
           <!-- Selected district badge -->
           <div id="pcSelectedBadge" style="display:none;margin-bottom:0.75rem;padding:0.4rem 0.75rem;background:rgba(98,43,20,0.08);border:1px solid rgba(98,43,20,0.25);border-radius:0.5rem;font-size:0.82rem;display:flex;justify-content:space-between;align-items:center;">
             <span id="pcSelectedLabel" style="font-weight:600;color:var(--primary)"></span>
-            <button onclick="clearPcSearch()" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:0.85rem;">✕ Change</button>
+            <button onclick="clearPcSearch()" style="background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:0.85rem;">
+                <span class="en-text">✕ Change</span>
+                <span class="kan-text">✕ ಬದಲಾಯಿಸಿ</span>
+            </button>
           </div>
 
           <div id="errorMsg" style="color:#622B14;display:none;margin-top:0.5rem;font-size:0.88rem;"></div>
@@ -1187,8 +1227,14 @@
           <div id="weatherGrid" style="display:none;margin-top:0.5rem;">
             <div id="weatherResult"></div>
             <div id="weatherActions" style="display:flex;gap:0.5rem;margin-top:0.75rem;">
-              <button id="viewOnMapBtn" style="flex:1;padding:0.55rem;background:linear-gradient(135deg,#995F2F,#622B14);color:#fff;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;font-size:0.82rem;">🗺️ View on Map</button>
-              <button class="btn-dashboard" id="dashboardBtn" style="flex:1;">&#128202; Dashboard</button>
+              <button id="viewOnMapBtn" style="flex:1;padding:0.55rem;background:linear-gradient(135deg,#995F2F,#622B14);color:#fff;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;font-size:0.82rem;">
+                  <span class="en-text">🗺️ View on Map</span>
+                  <span class="kan-text">🗺️ ನಕ್ಷೆಯಲ್ಲಿ ನೋಡಿ</span>
+              </button>
+              <button class="btn-dashboard" id="dashboardBtn" style="flex:1;">
+                  <span class="en-text">&#128202; Dashboard</span>
+                  <span class="kan-text">&#128202; ಡ್ಯಾಶ್‌ಬೋರ್ಡ್</span>
+              </button>
             </div>
           </div>
 
@@ -1199,8 +1245,14 @@
             <!-- Step 1: Select District -->
             <div id="stepDistrict">
                 <div class="browse-header">
-                    <h2 class="search-title" style="font-size:1.6rem;margin-bottom:0.3rem;">Select a District</h2>
-                    <p class="search-subtitle">Click a district to view its taluks</p>
+                    <h2 class="search-title" style="font-size:1.6rem;margin-bottom:0.3rem;">
+                        <span class="en-text">Select a District</span>
+                        <span class="kan-text">ಜಿಲ್ಲೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</span>
+                    </h2>
+                    <p class="search-subtitle">
+                        <span class="en-text">Click a district to view its taluks</span>
+                        <span class="kan-text">ತಾಲೂಕುಗಳನ್ನು ವೀಕ್ಷಿಸಲು ಜಿಲ್ಲೆಯ ಮೇಲೆ ಕ್ಲಿಕ್ ಮಾಡಿ</span>
+                    </p>
                     <input type="text" id="districtFilterInput" placeholder="🔎 Filter districts..." style="max-width:320px;margin-top:0.5rem;" oninput="filterDistrictCards()">
                 </div>
                 <div id="districtCardsGrid" class="browse-grid"></div>
@@ -1209,9 +1261,15 @@
             <!-- Step 2: Select Taluk -->
             <div id="stepTaluk" style="display:none;">
                 <div class="browse-header">
-                    <button class="back-btn" onclick="backToDistricts()">← Back to Districts</button>
+                    <button class="back-btn" onclick="backToDistricts()">
+                        <span class="en-text">← Back to Districts</span>
+                        <span class="kan-text">← ಜಿಲ್ಲೆಗಳ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ</span>
+                    </button>
                     <h2 class="search-title" style="font-size:1.6rem;margin:0.4rem 0 0.2rem;">📍 <span id="selectedDistrictName"></span></h2>
-                    <p class="search-subtitle">Select a taluk to view the 5-day forecast table</p>
+                    <p class="search-subtitle">
+                        <span class="en-text">Select a taluk to view the 5-day forecast table</span>
+                        <span class="kan-text">5 ದಿನಗಳ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಕೋಷ್ಟಕವನ್ನು ವೀಕ್ಷಿಸಲು ತಾಲೂಕನ್ನು ಆಯ್ಕೆಮಾಡಿ</span>
+                    </p>
                 </div>
                 <div id="talukCardsGrid" class="browse-grid"></div>
             </div>
@@ -1219,7 +1277,10 @@
             <!-- Step 3: Weather Table -->
             <div id="stepTable" style="display:none;">
                 <div class="browse-header">
-                    <button class="back-btn" onclick="backToTaluks()">← Back to Taluks</button>
+                    <button class="back-btn" onclick="backToTaluks()">
+                        <span class="en-text">← Back to Taluks</span>
+                        <span class="kan-text">← ತಾಲೂಕುಗಳ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ</span>
+                    </button>
                     <div id="tableHeading" style="margin-top:0.5rem;"></div>
                 </div>
                 <div id="weatherTableWrap"></div>
@@ -1235,7 +1296,10 @@
     <div id="districtModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>KARNATAKA DISTRICTS</h2>
+                <h2>
+                    <span class="en-text">KARNATAKA DISTRICTS</span>
+                    <span class="kan-text">ಕರ್ನಾಟಕದ ಜಿಲ್ಲೆಗಳು</span>
+                </h2>
                 <button class="close-btn" id="closeModalBtn">&times;</button>
             </div>
             <div class="modal-search">
@@ -1243,7 +1307,10 @@
             </div>
             <div id="districtsGrid" class="districts-grid"></div>
             <div class="modal-footer">
-                <span id="districtCount">Showing 31 of 31 districts</span>
+                <span id="districtCount">
+                    <span class="en-text">Showing 31 of 31 districts</span>
+                    <span class="kan-text">31 ಜಿಲ್ಲೆಗಳಲ್ಲಿ 31 ಜಿಲ್ಲೆಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ</span>
+                </span>
             </div>
         </div>
     </div>
@@ -2689,6 +2756,92 @@
         };
 
         // ═══════════════════════════════════════════════════════
+        //  KANNADA TRANSLATION DICTIONARIES & LOGIC
+        // ═══════════════════════════════════════════════════════
+        const KAN_DISTRICTS = {
+            'BENGALURU-URBAN': 'ಬೆಂಗಳೂರು ನಗರ',
+            'BENGALURU-RURAL': 'ಬೆಂಗಳೂರು ಗ್ರಾಮಾಂತರ',
+            'RAMANAGARA': 'ರಾಮನಗರ',
+            'KOLAR': 'ಕೋಲಾರ',
+            'CHIKBALLAPUR': 'ಚಿಕ್ಕಬಳ್ಳಾಪುರ',
+            'TUMAKURU': 'ತುಮಕೂರು',
+            'CHITRADURGA': 'ಚಿತ್ರದುರ್ಗ',
+            'DAVANAGERE': 'ದಾವಣಗೆರೆ',
+            'SHIVAMOGGA': 'ಶಿವಮೊಗ್ಗ',
+            'MYSURU': 'ಮೈಸೂರು',
+            'CHAMARAJANAGARA': 'ಚಾಮರಾಜನಗರ',
+            'MANDYA': 'ಮಂಡ್ಯ',
+            'HASSAN': 'ಹಾಸನ',
+            'KODAGU': 'ಕೊಡಗು',
+            'CHIKMAGALURU': 'ಚಿಕ್ಕಮಗಳೂರು',
+            'DAKSHINA-KANNADA': 'ದಕ್ಷಿಣ ಕನ್ನಡ',
+            'UDUPI': 'ಉಡುಪಿ',
+            'UTTARA-KANNADA': 'ಉತ್ತರ ಕನ್ನಡ',
+            'BELAGAVI': 'ಬೆಳಗಾವಿ',
+            'BAGALKOTE': 'ಬಾಗಲಕೋಟೆ',
+            'VIJAYAPURA': 'ವಿಜಯಪುರ',
+            'BIJAPUR': 'ವಿಜಯಪುರ',
+            'DHARWAD': 'ಧಾರವಾಡ',
+            'GADAG': 'ಗದಗ',
+            'HAVERI': 'ಹಾವೇರಿ',
+            'KOPPAL': 'ಕೊಪ್ಪಳ',
+            'BALLARI': 'ಬಳ್ಳಾರಿ',
+            'BALLARY': 'ಬಳ್ಳಾರಿ',
+            'VIJAYANAGARA': 'ವಿಜಯನಗರ',
+            'RAICHUR': 'ರಾಯಚೂರು',
+            'KALABURAGI': 'ಕಲಬುರಗಿ',
+            'GULBARGA': 'ಕಲಬುರಗಿ',
+            'YADGIR': 'ಯಾದಗಿರಿ',
+            'BIDAR': 'ಬೀದರ್'
+        };
+
+        function toggleLanguage() {
+            if (document.body.classList.contains('lang-kan')) {
+                document.body.classList.remove('lang-kan');
+                document.body.classList.add('lang-en');
+                localStorage.setItem('lang', 'en');
+            } else {
+                document.body.classList.remove('lang-en');
+                document.body.classList.add('lang-kan');
+                localStorage.setItem('lang', 'kan');
+            }
+            updateLanguageUI();
+        }
+
+        function updateLanguageUI() {
+            const isKan = document.body.classList.contains('lang-kan');
+            
+            // Toggle Button Label
+            const langBtn = document.getElementById('langToggleBtn');
+            if (langBtn) {
+                langBtn.innerHTML = isKan ? '🌐 English' : '🌐 ಕನ್ನಡ';
+            }
+            
+            // Input Placeholders
+            const pinInput = document.getElementById('pincodeInput');
+            if (pinInput) {
+                pinInput.placeholder = isKan ? 'ಪಿನ್‌ಕೋಡ್ ಅಥವಾ ಜಿಲ್ಲೆಯ ಹೆಸರನ್ನು ನಮೂದಿಸಿ...' : 'Enter Pincode or District name...';
+            }
+            const modalInput = document.getElementById('districtSearch');
+            if (modalInput) {
+                modalInput.placeholder = isKan ? 'ಜಿಲ್ಲೆ ಅಥವಾ ಪಿನ್‌ಕೋಡ್ ಹುಡುಕಿ...' : 'Search district or pincode...';
+            }
+            const filterInput = document.getElementById('districtFilterInput');
+            if (filterInput) {
+                filterInput.placeholder = isKan ? '🔎 ಜಿಲ್ಲೆಗಳನ್ನು ಶೋಧಿಸಿ...' : '🔎 Filter districts...';
+            }
+        }
+
+        // Initialize language configuration early
+        (function() {
+            const savedLang = localStorage.getItem('lang') || 'en';
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('lang-' + savedLang);
+                updateLanguageUI();
+            });
+        })();
+
+        // ═══════════════════════════════════════════════════════
         //  TAB SYSTEM
         // ═══════════════════════════════════════════════════════
         function switchTab(tab) {
@@ -2731,41 +2884,80 @@
             const grid = document.getElementById('districtCardsGrid');
             const keys = Object.keys(WEATHER_DATA);
             allDistrictCards = keys;
-            grid.innerHTML = keys.map(k => `
+            grid.innerHTML = keys.map(k => {
+                const enName = k.replace(/-/g,' ');
+                const kanName = KAN_DISTRICTS[k] || enName;
+                const enSub = `${Object.keys(WEATHER_DATA[k]).length} blocks`;
+                const kanSub = `${Object.keys(WEATHER_DATA[k]).length} ತಾಲೂಕುಗಳು`;
+                return `
                 <div class="browse-card" onclick="selectDistrict('${k}')">
-                    <div class="browse-card-name">${k.replace(/-/g,' ')}</div>
-                    <div class="browse-card-sub">${Object.keys(WEATHER_DATA[k]).length} blocks</div>
-                </div>
-            `).join('');
+                    <div class="browse-card-name">
+                        <span class="en-text">${enName}</span>
+                        <span class="kan-text">${kanName}</span>
+                    </div>
+                    <div class="browse-card-sub">
+                        <span class="en-text">${enSub}</span>
+                        <span class="kan-text">${kanSub}</span>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         function filterDistrictCards() {
             const q = document.getElementById('districtFilterInput').value.toLowerCase();
-            const keys = Object.keys(WEATHER_DATA).filter(k => k.toLowerCase().includes(q));
+            const keys = Object.keys(WEATHER_DATA).filter(k => {
+                const enName = k.toLowerCase();
+                const kanName = (KAN_DISTRICTS[k] || '').toLowerCase();
+                return enName.includes(q) || kanName.includes(q);
+            });
             const grid = document.getElementById('districtCardsGrid');
-            grid.innerHTML = keys.map(k => `
+            grid.innerHTML = keys.map(k => {
+                const enName = k.replace(/-/g,' ');
+                const kanName = KAN_DISTRICTS[k] || enName;
+                const enSub = `${Object.keys(WEATHER_DATA[k]).length} blocks`;
+                const kanSub = `${Object.keys(WEATHER_DATA[k]).length} ತಾಲೂಕುಗಳು`;
+                return `
                 <div class="browse-card" onclick="selectDistrict('${k}')">
-                    <div class="browse-card-name">${k.replace(/-/g,' ')}</div>
-                    <div class="browse-card-sub">${Object.keys(WEATHER_DATA[k]).length} blocks</div>
-                </div>
-            `).join('');
+                    <div class="browse-card-name">
+                        <span class="en-text">${enName}</span>
+                        <span class="kan-text">${kanName}</span>
+                    </div>
+                    <div class="browse-card-sub">
+                        <span class="en-text">${enSub}</span>
+                        <span class="kan-text">${kanSub}</span>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         // ── Select District → show Taluks ──
         function selectDistrict(districtKey) {
             currentDistrict = districtKey;
-            document.getElementById('selectedDistrictName').textContent = districtKey.replace(/-/g,' ');
+            
+            const enName = districtKey.replace(/-/g,' ');
+            const kanName = KAN_DISTRICTS[districtKey] || enName;
+            
+            document.getElementById('selectedDistrictName').innerHTML = `
+                <span class="en-text">📍 ${enName}</span>
+                <span class="kan-text">📍 ${kanName}</span>
+            `;
             document.getElementById('stepDistrict').style.display = 'none';
             document.getElementById('stepTaluk').style.display = 'block';
             document.getElementById('stepTable').style.display = 'none';
 
             const taluks = Object.keys(WEATHER_DATA[districtKey]);
-            document.getElementById('talukCardsGrid').innerHTML = taluks.map(t => `
+            document.getElementById('talukCardsGrid').innerHTML = taluks.map(t => {
+                const enSub = 'Click to view forecast';
+                const kanSub = 'ಹವಾಮಾನ ವಿವರಕ್ಕೆ ಕ್ಲಿಕ್ ಮಾಡಿ';
+                return `
                 <div class="browse-card" onclick="selectTaluk('${districtKey}','${t}')">
                     <div class="browse-card-name">${t}</div>
-                    <div class="browse-card-sub">Click to view forecast</div>
-                </div>
-            `).join('');
+                    <div class="browse-card-sub">
+                        <span class="en-text">${enSub}</span>
+                        <span class="kan-text">${kanSub}</span>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         function backToDistricts() {
@@ -2837,39 +3029,63 @@
             }).join('');
 
             // Build each data row: [label, kan, values[], summaryFn]
+            const KAN_DIR = {
+                'Northerly': 'ಉತ್ತರ',
+                'North-Easterly': 'ಈಶಾನ್ಯ',
+                'Easterly': 'ಪೂರ್ವ',
+                'South-Easterly': 'ಆಗ್ನೇಯ',
+                'Southerly': 'ದಕ್ಷಿಣ',
+                'South-Westerly': 'ನೈರುತ್ಯ',
+                'Westerly': 'ಪಶ್ಚಿಮ',
+                'North-Westerly': 'ವಾಯುವ್ಯ',
+                'Variable': 'ಬದಲಾಗುವ'
+            };
+            const domDirKan = KAN_DIR[domDir] || domDir;
+
             const PARAMS = [
-                {en:'Rainfall (mm)',    kan:'ಮಳೆ (ಮಿ.ಮೀ.)',            vals:rainfalls, sumFn:()=>`Range: ${rng(rainfalls)} mm`,  fmt:v=>v>0?`<span style="color:#0A6B9A;font-weight:600">${v.toFixed(1)}</span>`:'<span style="color:#aaa">Nil</span>'},
-                {en:'Max Temp (°C)',    kan:'ಗರಿಷ್ಟ ಉಷ್ಣಾಂಶ (ಡಿ.ಸೆ.)',  vals:tmaxArr,  sumFn:()=>`Avg: ${avg(tmaxArr)} °C`,      fmt:v=>`<span style="color:#8B2635;font-weight:600">${v}</span>`},
-                {en:'Min Temp (°C)',    kan:'ಕನಿಷ್ಠ ಉಷ್ಣಾಂಶ (ಡಿ.ಸೆ.)',  vals:tminArr,  sumFn:()=>`Avg: ${avg(tminArr)} °C`,      fmt:v=>`<span style="color:#0A3A5A;font-weight:600">${v}</span>`},
-                {en:'Max. Rel. Humidity (%)', kan:'ಗರಿಷ್ಟ ತೇವಾಂಶ (%)', vals:rhIArr,   sumFn:()=>`Avg: ${avg(rhIArr)} %`,        fmt:v=>`${v}`},
-                {en:'Min. Rel. Humidity (%)', kan:'ಕನಿಷ್ಠ ತೇವಾಂಶ (%)', vals:rhIIArr,  sumFn:()=>`Avg: ${avg(rhIIArr)} %`,       fmt:v=>`${v}`},
-                {en:'Wind Speed (km/hr)',      kan:'ಗಾಳಿಯ ವೇಗ (ಕಿ.ಮೀ/ಗಂಟೆಗೆ)', vals:wsArr, sumFn:()=>`Range: ${rng(wsArr)} km/h`, fmt:v=>`${v}`},
-                {en:'Wind Direction (°)',      kan:'ಗಾಳಿಯ ದಿಕ್ಕು (ಡಿ.)',  vals:wdArr,   sumFn:()=>domDir,                        fmt:v=>`${v.toFixed(0)}° (${degToDir(v)})`},
-                {en:'Total Cloud Cover (Octa)',kan:'ಮೋಡಗಳ ಹೊದಿಕೆ (ಒಕ್ಟಾ)',vals:ccArr,  sumFn:()=>`Avg: ${avg(ccArr)}`,          fmt:v=>`${v}`},
+                {en:'Rainfall (mm)',    kan:'ಮಳೆ (ಮಿ.ಮೀ.)',            vals:rainfalls, sumFn:()=>`<span class="en-text">Range: ${rng(rainfalls)} mm</span><span class="kan-text">ವ್ಯಾಪ್ತಿ: ${rng(rainfalls)} ಮಿ.ಮೀ.</span>`,  fmt:v=>v>0?`<span style="color:#0A6B9A;font-weight:600">${v.toFixed(1)}</span>`:'<span style="color:#aaa">Nil</span>'},
+                {en:'Max Temp (°C)',    kan:'ಗರಿಷ್ಟ ಉಷ್ಣಾಂಶ (ಡಿ.ಸೆ.)',  vals:tmaxArr,  sumFn:()=>`<span class="en-text">Avg: ${avg(tmaxArr)} °C</span><span class="kan-text">ಸರಾಸರಿ: ${avg(tmaxArr)} °C</span>`,      fmt:v=>`<span style="color:#8B2635;font-weight:600">${v}</span>`},
+                {en:'Min Temp (°C)',    kan:'ಕನಿಷ್ಠ ಉಷ್ಣಾಂಶ (ಡಿ.ಸೆ.)',  vals:tminArr,  sumFn:()=>`<span class="en-text">Avg: ${avg(tminArr)} °C</span><span class="kan-text">ಸರಾಸರಿ: ${avg(tminArr)} °C</span>`,      fmt:v=>`<span style="color:#0A3A5A;font-weight:600">${v}</span>`},
+                {en:'Max. Rel. Humidity (%)', kan:'ಗರಿಷ್ಟ ತೇವಾಂಶ (%)', vals:rhIArr,   sumFn:()=>`<span class="en-text">Avg: ${avg(rhIArr)} %</span><span class="kan-text">ಸರಾಸರಿ: ${avg(rhIArr)} %</span>`,        fmt:v=>`${v}`},
+                {en:'Min. Rel. Humidity (%)', kan:'ಕನಿಷ್ಠ ತೇವಾಂಶ (%)', vals:rhIIArr,  sumFn:()=>`<span class="en-text">Avg: ${avg(rhIIArr)} %</span><span class="kan-text">ಸರಾಸರಿ: ${avg(rhIIArr)} %</span>`,       fmt:v=>`${v}`},
+                {en:'Wind Speed (km/hr)',      kan:'ಗಾಳಿಯ ವೇಗ (ಕಿ.ಮೀ/ಗಂಟೆಗೆ)', vals:wsArr, sumFn:()=>`<span class="en-text">Range: ${rng(wsArr)} km/h</span><span class="kan-text">ವ್ಯಾಪ್ತಿ: ${rng(wsArr)} ಕಿ.ಮೀ/ಗಂ</span>`, fmt:v=>`${v}`},
+                {en:'Wind Direction (°)',      kan:'ಗಾಳಿಯ ದಿಕ್ಕು (ಡಿ.)',  vals:wdArr,   sumFn:()=>`<span class="en-text">${domDir}</span><span class="kan-text">${domDirKan}</span>`,                        fmt:v=>`${v.toFixed(0)}° (${degToDir(v)})`},
+                {en:'Total Cloud Cover (Octa)',kan:'ಮೋಡಗಳ ಹೊದಿಕೆ (ಒಕ್ಟಾ)',vals:ccArr,  sumFn:()=>`<span class="en-text">Avg: ${avg(ccArr)}</span><span class="kan-text">ಸರಾಸರಿ: ${avg(ccArr)}</span>`,          fmt:v=>`${v}`},
             ];
 
             const tableBodyRows = PARAMS.map(p => {
                 const cells = p.vals.map(v => `<td>${p.fmt(v)}</td>`).join('');
                 return `<tr>
-                    <td class="param-label">${p.en}<span class="kan">${p.kan}</span></td>
+                    <td class="param-label">
+                        <span class="en-text">${p.en}</span>
+                        <span class="kan-text">${p.kan}</span>
+                    </td>
                     ${cells}
                     <td class="summary-val">${p.sumFn()}</td>
                 </tr>`;
             }).join('');
 
             // Warning row
+            const warnSetKan = [...new Set(warnings.filter(w=>w&&w!=='—'))];
+            const warnTextKan = warnSetKan.length ? warnSetKan.join('; ') : 'ಯಾವುದೇ ಮಹತ್ವದ ಎಚ್ಚರಿಕೆಗಳಿಲ್ಲ';
             const warnCells = warnings.map(w => `<td class="warn-row">${w}</td>`).join('');
             const warnRow = `<tr>
-                <td class="param-label warn-row">Warnings<span class="kan">ಎಚ್ಚರಿಕೆಗಳು</span></td>
+                <td class="param-label warn-row">
+                    <span class="en-text">Warnings</span>
+                    <span class="kan-text">ಎಚ್ಚರಿಕೆಗಳು</span>
+                </td>
                 ${warnCells}
-                <td class="summary-val warn-row" style="font-size:0.72rem;">${warnText}</td>
+                <td class="summary-val warn-row" style="font-size:0.72rem;">
+                    <span class="en-text">${warnText}</span>
+                    <span class="kan-text">${warnTextKan}</span>
+                </td>
             </tr>`;
 
             // Auto-generate bulletin summary
             const summary = generateAgroSummaryFromRows(locationName, rows);
 
             // Heading HTML
-            document.getElementById('tableHeading').innerHTML = `
+            const enHeading = `
                 <div style="text-align:center; max-width:900px; margin:0 auto;">
                     <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--primary);">
                         📍 Name of the Location: <em>${locationName}</em>
@@ -2878,15 +3094,36 @@
                         District: ${districtName.replace(/-/g,' ')} &nbsp;|&nbsp; Weather Forecast for 5 days until ${lastDate}
                     </div>
                 </div>`;
+            
+            const kanHeading = `
+                <div style="text-align:center; max-width:900px; margin:0 auto;">
+                    <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--primary);">
+                        📍 ಸ್ಥಳದ ಹೆಸರು: <em>${locationName}</em>
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;font-family:'IBM Plex Mono',monospace;">
+                        ಜಿಲ್ಲೆ: ${KAN_DISTRICTS[districtName] || districtName.replace(/-/g,' ')} &nbsp;|&nbsp; ${lastDate} ವರೆಗಿನ 5 ದಿನಗಳ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ
+                    </div>
+                </div>`;
+
+            document.getElementById('tableHeading').innerHTML = `
+                <span class="en-text">${enHeading}</span>
+                <span class="kan-text">${kanHeading}</span>
+            `;
 
             document.getElementById('weatherTableWrap').innerHTML = `
                 <div class="imd-table-wrap">
                     <table class="imd-table">
                         <thead>
                             <tr>
-                                <th class="param-col">Weather Parameters<br><span style="font-size:0.68rem;font-weight:400;font-family:'Inter',sans-serif;">ಹವಾಮಾನ ಅಂಶಗಳು</span></th>
+                                <th class="param-col">
+                                    <span class="en-text">Weather Parameters</span>
+                                    <span class="kan-text">ಹವಾಮಾನ ಅಂಶಗಳು</span>
+                                </th>
                                 ${dayHeaders}
-                                <th class="summary-col">Over Weather<br>Summary</th>
+                                <th class="summary-col">
+                                    <span class="en-text">Over Weather<br>Summary</span>
+                                    <span class="kan-text">ಒಟ್ಟಾರೆ ಹವಾಮಾನ<br>ಸಾರಾಂಶ</span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2897,8 +3134,12 @@
                 </div>
                 <div class="agro-summary" style="max-width:980px;margin:0 auto 2rem;">
                     <div class="agro-summary-title">
-                        📋 Overall District Weather Summary
-                        <span class="agro-summary-badge">IMD / GKMS BULLETIN</span>
+                        <span class="en-text">📋 Overall District Weather Summary</span>
+                        <span class="kan-text">📋 ಒಟ್ಟಾರೆ ಜಿಲ್ಲಾ ಹವಾಮಾನ ಸಾರಾಂಶ</span>
+                        <span class="agro-summary-badge">
+                            <span class="en-text">IMD / GKMS BULLETIN</span>
+                            <span class="kan-text">ಐ.ಎಮ್.ಡಿ / ಜಿ.ಕೆ.ಎಮ್.ಎಸ್ ಬುಲೆಟಿನ್</span>
+                        </span>
                     </div>
                     <p class="agro-summary-text">${summary}</p>
                 </div>
@@ -3287,7 +3528,9 @@
         }
 
         function generateAgroSummaryFromRows(locationName, rows) {
-            if (!rows || rows.length === 0) return 'No forecast data available.';
+            if (!rows || rows.length === 0) {
+                return '<span class="en-text">No forecast data available.</span><span class="kan-text">ಯಾವುದೇ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಲಭ್ಯವಿಲ್ಲ.</span>';
+            }
             const rainfalls = rows.map(r=>r.rainfall||0);
             const tmaxArr   = rows.map(r=>r.tempMax);
             const tminArr   = rows.map(r=>r.tempMin);
@@ -3310,30 +3553,75 @@
             const wMax      = Math.max(...wsArr).toFixed(0);
             const cloudFirst= ccArr.slice(0,2).reduce((a,b)=>a+b,0)/2;
             const cloudLast = ccArr.slice(-2).reduce((a,b)=>a+b,0)/2;
+            
             const dirNames  = wdArr.map(d=>degToDir(d));
             const dirCount  = {};
             dirNames.forEach(d=>{ dirCount[d]=(dirCount[d]||0)+1; });
             const domDir    = Object.keys(dirCount).sort((a,b)=>dirCount[b]-dirCount[a])[0];
+            
+            const KAN_DIR = {
+                'Northerly': 'ಉತ್ತರ',
+                'North-Easterly': 'ಈಶಾನ್ಯ',
+                'Easterly': 'ಪೂರ್ವ',
+                'South-Easterly': 'ಆಗ್ನೇಯ',
+                'Southerly': 'ದಕ್ಷಿಣ',
+                'South-Westerly': 'ನೈರುತ್ಯ',
+                'Westerly': 'ಪಶ್ಚಿಮ',
+                'North-Westerly': 'ವಾಯುವ್ಯ',
+                'Variable': 'ಬದಲಾಗುವ'
+            };
+            const domDirKan = KAN_DIR[domDir] || domDir;
+            
             const earlyRain = rainfalls.slice(0,2).reduce((a,b)=>a+b,0);
             const lateRain  = rainfalls.slice(-2).reduce((a,b)=>a+b,0);
-            let rainTrend;
-            if (totalRain===0) rainTrend='Mainly dry weather is expected to prevail throughout the forecast period.';
-            else if (maxRain<2.5) rainTrend='Isolated light rainfall activity is likely during the forecast period.';
-            else if (maxRain<7.5) rainTrend='Light to moderate rainfall activity is likely at isolated places.';
-            else rainTrend='Moderate to heavy rainfall is likely at isolated places during the forecast period.';
-            if (totalRain>0&&lateRain>earlyRain*1.5) rainTrend='Mainly dry weather is expected during the initial period, followed by light rainfall activity in later days.';
-            else if (totalRain>0&&earlyRain>lateRain*1.5) rainTrend='Light rainfall activity is likely during the initial period, with predominantly dry conditions thereafter.';
-            const cloudTrend = cloudLast>cloudFirst+0.5
+            
+            // English texts
+            let rainTrendEn;
+            if (totalRain===0) rainTrendEn='Mainly dry weather is expected to prevail throughout the forecast period.';
+            else if (maxRain<2.5) rainTrendEn='Isolated light rainfall activity is likely during the forecast period.';
+            else if (maxRain<7.5) rainTrendEn='Light to moderate rainfall activity is likely at isolated places.';
+            else rainTrendEn='Moderate to heavy rainfall is likely at isolated places during the forecast period.';
+            
+            if (totalRain>0&&lateRain>earlyRain*1.5) rainTrendEn='Mainly dry weather is expected during the initial period, followed by light rainfall activity in later days.';
+            else if (totalRain>0&&earlyRain>lateRain*1.5) rainTrendEn='Light rainfall activity is likely during the initial period, with predominantly dry conditions thereafter.';
+            
+            const cloudTrendEn = cloudLast>cloudFirst+0.5
                 ?' Cloudiness is expected to increase gradually during the later part of the forecast period.'
                 : cloudFirst>cloudLast+0.5
                 ?' Cloud cover is likely to decrease towards the later part of the forecast period.'
                 :' Partly cloudy skies are likely to persist throughout the period.';
+                
             const hasHighWind= wsArr.some(w=>w>=20);
             const hasWarn    = rows.some(r=>r.warning);
-            const warnText   = hasWarn||hasHighWind
+            const warnTextEn = hasWarn||hasHighWind
                 ?' Thunderstorms, lightning, squall, and strong surface winds may occur at isolated places.'
                 :'';
-            return `${rainTrend} Maximum temperature may remain around ${tmaxMin}–${tmaxMax}°C while minimum temperature may vary between ${tminMin}–${tminMax}°C. Relative humidity is expected to range between ${rhIMin}–${rhIMax}% during morning hours and ${rhIIMin}–${rhIIMax}% during afternoon hours. Wind speed may range from ${wMin}–${wMax} km/hr with predominantly ${domDir.toLowerCase()} winds.${cloudTrend}${warnText}`;
+            
+            const enSummary = `${rainTrendEn} Maximum temperature may remain around ${tmaxMin}–${tmaxMax}°C while minimum temperature may vary between ${tminMin}–${tminMax}°C. Relative humidity is expected to range between ${rhIMin}–${rhIMax}% during morning hours and ${rhIIMin}–${rhIIMax}% during afternoon hours. Wind speed may range from ${wMin}–${wMax} km/hr with predominantly ${domDir.toLowerCase()} winds.${cloudTrendEn}${warnTextEn}`;
+
+            // Kannada texts
+            let rainTrendKan;
+            if (totalRain===0) rainTrendKan='ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಅವಧಿಯಲ್ಲಿ ಪ್ರಮುಖವಾಗಿ ಒಣ ಹವಾಮಾನವು ಮುಂದುವರೆಯುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            else if (maxRain<2.5) rainTrendKan='ಮುನ್ಸೂಚನೆ ಅವಧಿಯಲ್ಲಿ ಅಲ್ಲಲ್ಲಿ ಹಗುರವಾದ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            else if (maxRain<7.5) rainTrendKan='ಅಲ್ಲಲ್ಲಿ ಹಗುರದಿಂದ ಸಾಧಾರಣ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            else rainTrendKan='ಮುನ್ಸೂಚನೆ ಅವಧಿಯಲ್ಲಿ ಅಲ್ಲಲ್ಲಿ ಸಾಧಾರಣದಿಂದ ಭಾರಿ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            
+            if (totalRain>0&&lateRain>earlyRain*1.5) rainTrendKan='ಆರಂಭಿಕ ದಿನಗಳಲ್ಲಿ ಒಣ ಹವಾಮಾನವಿದ್ದು, ನಂತರದ ದಿನಗಳಲ್ಲಿ ಹಗುರ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            else if (totalRain>0&&earlyRain>lateRain*1.5) rainTrendKan='ಆರಂಭಿಕ ದಿನಗಳಲ್ಲಿ ಹಗುರ ಮಳೆಯಾಗಲಿದ್ದು, ನಂತರದ ದಿನಗಳಲ್ಲಿ ಒಣ ಹವಾಮಾನವು ಮುಂದುವರೆಯುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+            
+            const cloudTrendKan = cloudLast>cloudFirst+0.5
+                ?' ಮುನ್ಸೂಚನೆ ಅವಧಿಯ ಕೊನೆಯ ಭಾಗದಲ್ಲಿ ಮೋಡ ಕವಿದ ವಾತಾವರಣವು ಕ್ರಮೇಣ ಹೆಚ್ಚಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.'
+                : cloudFirst>cloudLast+0.5
+                ?' ಮುನ್ಸೂಚನೆ ಅವಧಿಯ ಕೊನೆಯ ಭಾಗದಲ್ಲಿ ಮೋಡದ ಹೊದಿಕೆಯು ಕಡಿಮೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.'
+                :' ಅವಧಿಯುದ್ದಕ್ಕೂ ಭಾಗಶಃ ಮೋಡ ಕವಿದ ವಾತಾವರಣವು ಮುಂದುವರೆಯುವ ಸಾಧ್ಯತೆಯಿದೆ.';
+                
+            const warnTextKan = hasWarn||hasHighWind
+                ?' ಅಲ್ಲಲ್ಲಿ ಗುಡುಗು, ಮಿಂಚು ಮತ್ತು ಬಲವಾದ ಮೇಲ್ಮೈ ಗಾಳಿಯೊಂದಿಗೆ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆಯಿದೆ.'
+                :'';
+                
+            const kanSummary = `${rainTrendKan} ಗರಿಷ್ಠ ತಾಪಮಾನವು ${tmaxMin}–${tmaxMax}°C ಮತ್ತು ಕನಿಷ್ಠ ತಾಪಮಾನವು ${tminMin}–${tminMax}°C ವರೆಗೆ ಇರಬಹುದು. ಗಾಳಿಯಲ್ಲಿನ ತೇವಾಂಶವು ಬೆಳಿಗ್ಗೆ ${rhIMin}–${rhIMax}% ಮತ್ತು ಮಧ್ಯಾಹ್ನ ${rhIIMin}–${rhIIMax}% ಇರಬಹುದು. ಗಾಳಿಯ ವೇಗವು ಗಂಟೆಗೆ ${wMin}–${wMax} ಕಿ.ಮೀ ಇರಲಿದ್ದು, ಪ್ರಮುಖವಾಗಿ ${domDirKan} ದಿಕ್ಕಿನಿಂದ ಬೀಸಬಹುದು.${cloudTrendKan}${warnTextKan}`;
+
+            return `<span class="en-text">${enSummary}</span><span class="kan-text">${kanSummary}</span>`;
         }
 
         // Initialize
