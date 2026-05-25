@@ -14,3 +14,11 @@ desktop.ini
 *.tmp
 *.bak
 *.log
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Electron build output
+dist/
+out/

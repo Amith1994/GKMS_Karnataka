@@ -1,0 +1,57 @@
+{
+  "name": "gkms-karnataka",
+  "version": "1.0.0",
+  "description": "GKMS AgroMet Karnataka - Block-level 5-day Weather Forecast App",
+  "main": "main.js",
+  "author": "GKMS Project Team - KSNUAHS Shivamogga",
+  "license": "ISC",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "publish": "electron-builder --win --publish always"
+  },
+  "build": {
+    "appId": "com.gkms.karnataka",
+    "productName": "GKMS Karnataka",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "1st_updated.html",
+      "index.html",
+      "admin.html",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "shortcutName": "GKMS Karnataka"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Amith1994",
+      "repo": "GKMS_Karnataka"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}
