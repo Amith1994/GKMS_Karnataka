@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GKMS AgroMet — Karnataka Weather Forecast | KSNUAHS</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#C0496A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -3333,6 +3338,15 @@
                 dd.style.display = 'none';
             }
         });
+</script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+                .catch(err => console.error('Service Worker registration failed:', err));
+        });
+    }
 </script>
 </body>
 </html>
