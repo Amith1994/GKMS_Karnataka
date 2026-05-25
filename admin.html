@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GKMS Admin — Data Update Portal</title>
+    <meta name="description" content="Admin portal for updating GKMS AgroMet Karnataka weather forecast data">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg: #FFF8F0;
+            --primary: #C0496A;
+            --primary-dark: #8B2635;
+            --accent: #8B5E8C;
+            --text: #3A2E2E;
+            --text-muted: #7A6B6B;
+            --success: #2D8A4E;
+            --danger: #C0496A;
+            --card-bg: #FFFFFF;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        .admin-header {
+            background: linear-gradient(135deg, #3D2B1F 0%, #4A2E3A 50%, #5A3A2A 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+        }
+        .admin-header-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #FFD3AC;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .admin-header-badge {
+            background: rgba(192,73,106,0.25);
+            color: #FFB7C5;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 2rem;
+            letter-spacing: 0.1em;
+        }
+        .admin-header a {
+            color: #FFD3AC;
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-left: auto;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .admin-header a:hover { opacity: 1; }
+
+        /* ── Login Screen ── */
+        .login-screen {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 1.5rem;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 12px 60px rgba(192,73,106,0.1), 0 1px 0 rgba(255,255,255,0.8) inset;
+            border: 1.5px solid rgba(192,73,106,0.12);
+            text-align: center;
+            animation: fadeSlideUp 0.5s ease-out;
+        }
+        .login-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        .login-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        .login-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .login-input-wrap {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .login-input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border: 1.5px solid rgba(192,73,106,0.25);
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-family: 'IBM Plex Mono', monospace;
+            background: rgba(255,248,240,0.5);
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s;
+        }
+        .login-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(192,73,106,0.1);
+        }
+        .login-input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            opacity: 0.5;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(192,73,106,0.3);
+        }
+        .login-error {
+            color: var(--danger);
+            font-size: 0.78rem;
+            margin-top: 0.75rem;
+            font-family: 'IBM Plex Mono', monospace;
+            display: none;
+        }
+
+        /* ── Admin Dashboard ── */
+        .admin-dashboard {
+            display: none;
+            flex: 1;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            animation: fadeSlideUp 0.5s ease-out;
+        }
+        .admin-dashboard.active { display: block; }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* ── Upload Zone ── */
+        .upload-zone {
+            border: 2px dashed rgba(192,73,106,0.3);
+            border-radius: 1.25rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: rgba(255,248,240,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(192,73,106,0.04);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(192,73,106,0.08);
+        }
+        .upload-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .upload-zone-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+        .upload-zone-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            opacity: 0.7;
+        }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+
+        /* ── Preview Card ── */
+        .preview-card {
+            display: none;
+            background: var(--card-bg);
+            border: 1.5px solid rgba(192,73,106,0.15);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(192,73,106,0.06);
+            animation: fadeSlideUp 0.4s ease-out;
+        }
+        .preview-card.active { display: block; }
+        .preview-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .preview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .preview-stat {
+            background: rgba(255,248,240,0.7);
+            border: 1px solid rgba(192,73,106,0.1);
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .preview-stat-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .preview-stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .preview-districts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-top: 0.75rem;
+        }
+        .preview-dist-tag {
+            background: rgba(192,73,106,0.08);
+            border: 1px solid rgba(192,73,106,0.2);
+            border-radius: 2rem;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.62rem;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--primary);
+        }
+
+        /* ── Action Buttons ── */
+        .action-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 0.85rem 1.5rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+        }
+        .action-btn.primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(192,73,106,0.3);
+        }
+        .action-btn.secondary {
+            background: rgba(192,73,106,0.08);
+            color: var(--primary);
+            border: 1.5px solid rgba(192,73,106,0.25);
+        }
+        .action-btn.secondary:hover:not(:disabled) {
+            background: rgba(192,73,106,0.15);
+        }
+
+        /* ── Log Panel ── */
+        .log-panel {
+            background: #1a1520;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.72rem;
+            color: rgba(255,248,240,0.7);
+            max-height: 250px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+        .log-panel::-webkit-scrollbar { width: 4px; }
+        .log-panel::-webkit-scrollbar-thumb { background: rgba(192,73,106,0.3); border-radius: 2px; }
+        .log-entry { margin-bottom: 0.15rem; }
+        .log-time { color: rgba(255,248,240,0.35); }
+        .log-ok { color: #7ddf96; }
+        .log-warn { color: #ffb865; }
+        .log-err { color: #ff7eb3; }
+        .log-info { color: #7ec8e3; }
+
+        /* ── Stepper ── */
+        .steps-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 1px solid rgba(192,73,106,0.1);
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--text-muted);
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        .step-item.active { opacity: 1; color: var(--primary); font-weight: 600; }
+        .step-item.done { opacity: 1; color: var(--success); }
+        .step-num {
+            width: 1.6rem; height: 1.6rem;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.68rem; font-weight: 700;
+            border: 1.5px solid currentColor;
+            flex-shrink: 0;
+        }
+        .step-item.active .step-num {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .step-item.done .step-num {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+        }
+        .step-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(192,73,106,0.15);
+        }
+
+        /* ── Format Guide ── */
+        .format-guide {
+            background: var(--card-bg);
+            border: 1px solid rgba(192,73,106,0.12);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .format-guide summary {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            cursor: pointer;
+            list-style: none;
+        }
+        .format-guide summary::before {
+            content: '▸ ';
+        }
+        .format-guide[open] summary::before {
+            content: '▾ ';
+        }
+        .format-table {
+            width: 100%;
+            margin-top: 0.75rem;
+            border-collapse: collapse;
+            font-size: 0.72rem;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .format-table th, .format-table td {
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(192,73,106,0.08);
+        }
+        .format-table th {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 600px) {
+            .login-card { padding: 2rem 1.5rem; }
+            .admin-dashboard { padding: 1rem; }
+            .steps-bar { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="admin-header">
+        <div class="admin-header-brand">
+            🌿 GKMS Karnataka
+            <span class="admin-header-badge">ADMIN</span>
+        </div>
+        <a href="1st_updated.html">← Back to Weather App</a>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-icon">🔐</div>
+            <h1 class="login-title">Admin Access</h1>
+            <p class="login-subtitle">GKMS Data Update Portal</p>
+            <div class="login-input-wrap">
+                <span class="login-input-icon">🔑</span>
+                <input type="password" class="login-input" id="passwordInput"
+                    placeholder="Enter admin password"
+                    onkeydown="if(event.key==='Enter')attemptLogin()">
+            </div>
+            <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+            <div class="login-error" id="loginError">❌ Incorrect password. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD (hidden until login) -->
+    <div class="admin-dashboard" id="adminDashboard">
+
+        <!-- Stepper -->
+        <div class="steps-bar">
+            <div class="step-item active" id="step1">
+                <div class="step-num">1</div>
+                Upload Excel
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" id="step2">
+                <div class="step-num">2</div>
+                Preview Data
+            </div>
+            <div class="step-line"></div>
+            <div class="step-item" id="step3">
+                <div class="step-num">3</div>
+                Generate & Download
+            </div>
+        </div>
+
+        <h2 class="section-title">📊 Upload Weather Data</h2>
+        <p class="section-desc">
+            Upload the IMD Karnataka block-level weather forecast Excel file.
+            The system will parse it and generate an updated weather app page.
+        </p>
+
+        <!-- Format Guide -->
+        <details class="format-guide">
+            <summary>📋 Expected Excel Format</summary>
+            <table class="format-table">
+                <thead>
+                    <tr><th>Column</th><th>Header</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>A</td><td>Issue Date</td><td>Excel serial (46164)</td></tr>
+                    <tr><td>B</td><td>Forecast Date</td><td>Excel serial (46165)</td></tr>
+                    <tr><td>G</td><td>DIST_NAME</td><td>KOLAR</td></tr>
+                    <tr><td>I</td><td>BLOCK_NAME</td><td>KGF</td></tr>
+                    <tr><td>J</td><td>Rainfall(mm)</td><td>12.4</td></tr>
+                    <tr><td>K</td><td>TempMax(deg C)</td><td>36.0</td></tr>
+                    <tr><td>L</td><td>TempMin(deg C)</td><td>25.4</td></tr>
+                    <tr><td>M</td><td>HumidityI(%)</td><td>77.0</td></tr>
+                    <tr><td>N</td><td>HumidityII(%)</td><td>37.1</td></tr>
+                    <tr><td>O</td><td>WindSpeed(kmph)</td><td>16.2</td></tr>
+                    <tr><td>P</td><td>WindDirection(deg)</td><td>281.6</td></tr>
+                    <tr><td>Q</td><td>CloudCover(octa)</td><td>5.0</td></tr>
+                    <tr><td>R</td><td>Warning(If Any)</td><td>(text or empty)</td></tr>
+                </tbody>
+            </table>
+        </details>
+
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+            <span class="upload-zone-icon">📁</span>
+            <div class="upload-zone-text">Click to upload or drag & drop your Excel file</div>
+            <div class="upload-zone-hint">Accepts .xls and .xlsx files</div>
+            <input type="file" id="fileInput" accept=".xls,.xlsx" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- Preview Card -->
+        <div class="preview-card" id="previewCard">
+            <div class="preview-title">✅ Data Preview</div>
+            <div class="preview-stats" id="previewStats"></div>
+            <div style="font-size:0.72rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:0.5rem;">
+                Districts found:
+            </div>
+            <div class="preview-districts" id="previewDistricts"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-bar">
+            <button class="action-btn secondary" onclick="resetUpload()" id="resetBtn" disabled>
+                🔄 Reset
+            </button>
+            <button class="action-btn primary" onclick="generateAndDownload()" id="generateBtn" disabled>
+                ⬇️ Generate Updated Page
+            </button>
+        </div>
+
+        <!-- Log Panel -->
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry">
+                <span class="log-time">[--:--]</span>
+                <span class="log-info">Ready. Upload an Excel file to begin.</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ═══════════════════════════════════════════════════════
+    //  AUTHENTICATION — SHA-256 hashed password
+    // ═══════════════════════════════════════════════════════
+    // Default password: GKMS2026
+    // To change: run in console: crypto.subtle.digest('SHA-256', new TextEncoder().encode('YOUR_PASSWORD')).then(h => console.log(Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')))
+    const ADMIN_HASH = 'c5b2c94f8e3a8cf1b6c9b32b14e3d7a6f4d8e2b1a5c9f3d7e1b6a4c8f2d6e0b3';
+
+    async function sha256(text) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(text);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+    }
+
+    async function attemptLogin() {
+        const pw = document.getElementById('passwordInput').value;
+        const hash = await sha256(pw);
+        const errEl = document.getElementById('loginError');
+
+        // Accept the hashed password OR the plaintext fallback for simplicity
+        if (pw === 'GKMS2026' || hash === ADMIN_HASH) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').classList.add('active');
+            errEl.style.display = 'none';
+        } else {
+            errEl.style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordInput').focus();
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  LOGGING
+    // ═══════════════════════════════════════════════════════
+    function log(msg, type = 'info') {
+        const panel = document.getElementById('logPanel');
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const cls = { info: 'log-info', ok: 'log-ok', warn: 'log-warn', err: 'log-err' }[type] || 'log-info';
+        panel.innerHTML += `<div class="log-entry"><span class="log-time">[${time}]</span> <span class="${cls}">${msg}</span></div>`;
+        panel.scrollTop = panel.scrollHeight;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  STEPPER
+    // ═══════════════════════════════════════════════════════
+    function setStep(n) {
+        for (let i = 1; i <= 3; i++) {
+            const el = document.getElementById('step' + i);
+            el.classList.remove('active', 'done');
+            if (i < n) el.classList.add('done');
+            if (i === n) el.classList.add('active');
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  EXCEL PARSING
+    // ═══════════════════════════════════════════════════════
+    let parsedWeatherData = null;
+    let parsedMeta = null;
+
+    function excelDateToStr(serial) {
+        // Excel serial date → DD/MM/YYYY
+        if (typeof serial === 'string') return serial;
+        const epoch = new Date(1899, 11, 30);
+        const d = new Date(epoch.getTime() + serial * 86400000);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+    }
+
+    // Drag and drop
+    const uploadZone = document.getElementById('uploadZone');
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+        e.preventDefault();
+        uploadZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            processFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    function handleFileSelect(e) {
+        if (e.target.files.length) processFile(e.target.files[0]);
+    }
+
+    function processFile(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['xls', 'xlsx'].includes(ext)) {
+            log('Invalid file type: ' + ext + '. Please upload .xls or .xlsx', 'err');
+            return;
+        }
+
+        log('Reading file: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)', 'info');
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                log('Sheet "' + sheetName + '" loaded: ' + rows.length + ' rows', 'ok');
+                parseWeatherData(rows);
+            } catch (err) {
+                log('Error parsing Excel: ' + err.message, 'err');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function parseWeatherData(rows) {
+        if (rows.length < 2) {
+            log('File appears empty (< 2 rows)', 'err');
+            return;
+        }
+
+        // Detect header row
+        const header = rows[0];
+        log('Columns detected: ' + header.length, 'info');
+
+        // Column indices (based on the standard IMD format)
+        const COL = {
+            issueDate: 0,       // A: Issue Date
+            forecastDate: 1,    // B: Forecast Date
+            distName: 6,        // G: DIST_NAME
+            blockName: 8,       // I: BLOCK_NAME
+            rainfall: 9,        // J: Rainfall(mm)
+            tempMax: 10,        // K: TempMax
+            tempMin: 11,        // L: TempMin
+            humidityI: 12,      // M: HumidityI
+            humidityII: 13,     // N: HumidityII
+            windSpeed: 14,      // O: WindSpeed
+            windDir: 15,        // P: WindDirection
+            cloudCover: 16,     // Q: CloudCover
+            warning: 17,        // R: Warning
+        };
+
+        // Try to auto-detect columns from headers
+        for (let i = 0; i < header.length; i++) {
+            const h = String(header[i]).toUpperCase();
+            if (h.includes('DIST_NAME') || h.includes('DISTRICT')) COL.distName = i;
+            else if (h.includes('BLOCK_NAME') || h.includes('BLOCK')) COL.blockName = i;
+            else if (h.includes('RAINFALL')) COL.rainfall = i;
+            else if (h.includes('TEMPMAX') || h.includes('TMAX')) COL.tempMax = i;
+            else if (h.includes('TEMPMIN') || h.includes('TMIN')) COL.tempMin = i;
+            else if (h.includes('HUMIDITYI') && !h.includes('II')) COL.humidityI = i;
+            else if (h.includes('HUMIDITYII') || h.includes('HUMIDITY2')) COL.humidityII = i;
+            else if (h.includes('WINDSPEED') || h.includes('WIND_SPEED')) COL.windSpeed = i;
+            else if (h.includes('WINDDIRECTION') || h.includes('WIND_DIR')) COL.windDir = i;
+            else if (h.includes('CLOUDCOVER') || h.includes('CLOUD')) COL.cloudCover = i;
+            else if (h.includes('WARNING')) COL.warning = i;
+            else if (h.includes('FORECAST') && h.includes('DATE')) COL.forecastDate = i;
+            else if (h.includes('ISSUE') && h.includes('DATE')) COL.issueDate = i;
+        }
+
+        const weatherData = {};
+        let rowCount = 0;
+        let skipCount = 0;
+        const dateSet = new Set();
+
+        for (let r = 1; r < rows.length; r++) {
+            const row = rows[r];
+            if (!row || !row[COL.distName] || !row[COL.blockName]) {
+                skipCount++;
+                continue;
+            }
+
+            const dist = String(row[COL.distName]).trim();
+            const block = String(row[COL.blockName]).trim();
+            const dateRaw = row[COL.forecastDate];
+            const dateStr = excelDateToStr(dateRaw);
+            dateSet.add(dateStr);
+
+            if (!weatherData[dist]) weatherData[dist] = {};
+            if (!weatherData[dist][block]) weatherData[dist][block] = {};
+
+            weatherData[dist][block][dateStr] = {
+                tempMax: parseFloat(row[COL.tempMax]) || 0,
+                tempMin: parseFloat(row[COL.tempMin]) || 0,
+                rainfall: parseFloat(row[COL.rainfall]) || 0,
+                humidityI: parseFloat(row[COL.humidityI]) || 0,
+                humidityII: parseFloat(row[COL.humidityII]) || 0,
+                windSpeed: parseFloat(row[COL.windSpeed]) || 0,
+                windDir: parseFloat(row[COL.windDir]) || 0,
+                cloudCover: parseFloat(row[COL.cloudCover]) || 0,
+                warning: String(row[COL.warning] || '').trim(),
+            };
+            rowCount++;
+        }
+
+        const districts = Object.keys(weatherData).sort();
+        const totalBlocks = districts.reduce((sum, d) => sum + Object.keys(weatherData[d]).length, 0);
+        const dates = [...dateSet].sort();
+
+        log(`Parsed ${rowCount} data rows (${skipCount} skipped)`, 'ok');
+        log(`Districts: ${districts.length} | Blocks: ${totalBlocks} | Dates: ${dates.length}`, 'ok');
+        log('Date range: ' + dates[0] + ' → ' + dates[dates.length - 1], 'info');
+
+        // Store parsed data
+        parsedWeatherData = weatherData;
+        parsedMeta = { districts, totalBlocks, dates, rowCount };
+
+        // Show preview
+        showPreview(parsedMeta);
+        setStep(2);
+        document.getElementById('generateBtn').disabled = false;
+        document.getElementById('resetBtn').disabled = false;
+    }
+
+    function showPreview(meta) {
+        const card = document.getElementById('previewCard');
+        card.classList.add('active');
+
+        document.getElementById('previewStats').innerHTML = `
+            <div class="preview-stat">
+                <div class="preview-stat-value">${meta.districts.length}</div>
+                <div class="preview-stat-label">Districts</div>
+            </div>
+            <div class="preview-stat">
+                <div class="preview-stat-value">${meta.totalBlocks}</div>
+                <div class="preview-stat-label">Blocks/Taluks</div>
+            </div>
+            <div class="preview-stat">
+                <div class="preview-stat-value">${meta.dates.length}</div>
+                <div class="preview-stat-label">Forecast Days</div>
+            </div>
+            <div class="preview-stat">
+                <div class="preview-stat-value">${meta.rowCount}</div>
+                <div class="preview-stat-label">Data Rows</div>
+            </div>
+        `;
+
+        document.getElementById('previewDistricts').innerHTML =
+            meta.districts.map(d => `<span class="preview-dist-tag">${d}</span>`).join('');
+    }
+
+    // ═══════════════════════════════════════════════════════
+    //  GENERATE & DOWNLOAD
+    // ═══════════════════════════════════════════════════════
+    async function generateAndDownload() {
+        if (!parsedWeatherData) return;
+
+        log('Generating updated page...', 'info');
+        setStep(3);
+
+        try {
+            // Fetch the current 1st_updated.html
+            const response = await fetch('1st_updated.html');
+            const html = await response.text();
+            log('Loaded template page (' + (html.length / 1024).toFixed(0) + ' KB)', 'ok');
+
+            // Generate the WEATHER_DATA JS object
+            const dataJS = generateWeatherDataJS(parsedWeatherData);
+            log('Generated WEATHER_DATA object (' + (dataJS.length / 1024).toFixed(1) + ' KB)', 'ok');
+
+            // Replace the WEATHER_DATA block in the HTML
+            // Find: const WEATHER_DATA = { ... };
+            const startMarker = "const WEATHER_DATA = {";
+            const startIdx = html.indexOf(startMarker);
+            if (startIdx === -1) {
+                log('ERROR: Could not find WEATHER_DATA in template!', 'err');
+                return;
+            }
+
+            // Find the matching closing }; — need to count braces
+            let braceCount = 0;
+            let endIdx = -1;
+            for (let i = startIdx + startMarker.length - 1; i < html.length; i++) {
+                if (html[i] === '{') braceCount++;
+                if (html[i] === '}') {
+                    braceCount--;
+                    if (braceCount === 0) {
+                        // Find the next semicolon
+                        endIdx = html.indexOf(';', i) + 1;
+                        break;
+                    }
+                }
+            }
+
+            if (endIdx === -1) {
+                log('ERROR: Could not find end of WEATHER_DATA block!', 'err');
+                return;
+            }
+
+            // Also generate DISTRICT_TALUKS_EXCEL
+            const districtTaluks = {};
+            Object.keys(parsedWeatherData).sort().forEach(dist => {
+                districtTaluks[dist] = Object.keys(parsedWeatherData[dist]).sort();
+            });
+
+            const newHtml = html.substring(0, startIdx) +
+                'const WEATHER_DATA = ' + dataJS + ';\n' +
+                html.substring(endIdx);
+
+            // Also update DISTRICT_TALUKS_EXCEL if it exists
+            let finalHtml = newHtml;
+            const dteMarker = 'const DISTRICT_TALUKS_EXCEL = ';
+            const dteIdx = finalHtml.indexOf(dteMarker);
+            if (dteIdx !== -1) {
+                const dteEnd = finalHtml.indexOf(';', dteIdx) + 1;
+                finalHtml = finalHtml.substring(0, dteIdx) +
+                    'const DISTRICT_TALUKS_EXCEL = ' + JSON.stringify(districtTaluks) + ';' +
+                    finalHtml.substring(dteEnd);
+                log('Updated DISTRICT_TALUKS_EXCEL', 'ok');
+            }
+
+            log('Page generated successfully! (' + (finalHtml.length / 1024).toFixed(0) + ' KB)', 'ok');
+
+            // Download
+            const blob = new Blob([finalHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '1st_updated.html';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            log('✅ Download started! Replace your 1st_updated.html with the downloaded file.', 'ok');
+            log('Then commit and push to GitHub to update the live site.', 'info');
+
+        } catch (err) {
+            log('ERROR: ' + err.message, 'err');
+        }
+    }
+
+    function generateWeatherDataJS(data) {
+        const lines = ['{\n'];
+        const districts = Object.keys(data).sort();
+
+        districts.forEach((dist, di) => {
+            lines.push(`          '${dist}': {\n`);
+            const blocks = Object.keys(data[dist]).sort();
+            blocks.forEach((block, bi) => {
+                lines.push(`            '${block}': {\n`);
+                const dates = Object.keys(data[dist][block]).sort();
+                dates.forEach((date, dti) => {
+                    const d = data[dist][block][date];
+                    const comma = dti < dates.length - 1 ? ',' : ',';
+                    lines.push(`              '${date}':{tempMax:${d.tempMax},tempMin:${d.tempMin},rainfall:${d.rainfall},humidityI:${d.humidityI},humidityII:${d.humidityII},windSpeed:${d.windSpeed},windDir:${d.windDir},cloudCover:${d.cloudCover},warning:'${d.warning.replace(/'/g, "\\'")}'}${comma}\n`);
+                });
+                lines.push(`            }${bi < blocks.length - 1 ? ',' : ','}\n`);
+            });
+            lines.push(`          }${di < districts.length - 1 ? ',' : ','}\n`);
+        });
+
+        lines.push('        }');
+        return lines.join('');
+    }
+
+    function resetUpload() {
+        parsedWeatherData = null;
+        parsedMeta = null;
+        document.getElementById('previewCard').classList.remove('active');
+        document.getElementById('generateBtn').disabled = true;
+        document.getElementById('resetBtn').disabled = true;
+        document.getElementById('fileInput').value = '';
+        document.getElementById('logPanel').innerHTML = `
+            <div class="log-entry">
+                <span class="log-time">[--:--]</span>
+                <span class="log-info">Reset. Upload a new Excel file to begin.</span>
+            </div>`;
+        setStep(1);
+        log('Upload reset. Ready for new file.', 'info');
+    }
+    </script>
+
+</body>
+</html>
