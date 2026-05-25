@@ -78,24 +78,97 @@
         .uni-banner {
             background: linear-gradient(135deg, #C0496A 0%, #8B5E8C 50%, #D4845A 100%);
             color: #fff;
-            text-align: center;
             padding: 0.75rem 1rem;
             position: relative; z-index: 30;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
-        .uni-banner-name {
+        .uni-banner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+        .uni-banner-logo {
+            height: clamp(55px, 8vw, 85px);
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+            border-radius: 4px;
+        }
+        .uni-banner-text {
+            flex: 1;
+            text-align: center;
+        }
+        .uni-banner-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(0.85rem, 2vw, 1.1rem);
+            font-size: clamp(0.95rem, 1.8vw, 1.25rem);
             font-weight: 700;
-            letter-spacing: 0.02em;
-            line-height: 1.35;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            margin: 0;
+            line-height: 1.2;
         }
-        .uni-banner-sub {
-            font-size: clamp(0.7rem, 1.5vw, 0.82rem);
-            font-weight: 400;
-            opacity: 0.92;
-            margin-top: 0.15rem;
-            line-height: 1.4;
+        .uni-banner-sub1 {
+            font-size: clamp(0.85rem, 1.6vw, 1.15rem);
+            font-weight: 700;
+            font-family: 'Cormorant Garamond', serif;
+            margin: 0.15rem 0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            line-height: 1.35;
+        }
+        .uni-banner-sub2 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: clamp(0.78rem, 1.4vw, 0.95rem);
+            color: #FFF0E8; /* soft gold/cream */
+            margin: 0.1rem 0;
+            letter-spacing: 0.03em;
+        }
+        .uni-banner-sub3 {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: clamp(0.65rem, 1.2vw, 0.76rem);
+            opacity: 0.95;
+            margin: 0.1rem 0;
+            letter-spacing: 0.02em;
+        }
+        .uni-banner-tagline {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(0.7rem, 1.3vw, 0.85rem);
+            font-weight: 600;
+            color: #FFB7C5; /* soft highlight pink */
+            margin: 0.25rem 0 0;
+            letter-spacing: 0.01em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            .uni-banner-container {
+                display: grid;
+                grid-template-areas: 
+                    "logo-l logo-r"
+                    "text text";
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                justify-items: center;
+            }
+            .uni-banner-logo.logo-left {
+                grid-area: logo-l;
+                justify-self: end;
+                margin-right: 1rem;
+            }
+            .uni-banner-logo.logo-right {
+                grid-area: logo-r;
+                justify-self: start;
+                margin-left: 1rem;
+            }
+            .uni-banner-text {
+                grid-area: text;
+            }
+            .uni-banner-logo {
+                height: 60px;
+            }
         }
 
         /* ── Header ── */
@@ -736,8 +809,18 @@
 
     <!-- UNIVERSITY BANNER -->
     <div class="uni-banner">
-        <h1>🌾 Keladi Shivappa Nayaka University of Agricultural and Horticultural Sciences, Shivamogga</h1>
-        <p>Gramin Krishi Mausam Sewa (GKMS) &mdash; AgroMet Field Unit (AMFU) &nbsp;|&nbsp; Hiriyur &bull; Navile &bull; Brahmavar</p>
+        <div class="uni-banner-container">
+            <img class="uni-banner-logo logo-left" src="assets/logo_imd.png" alt="India Meteorological Department Logo">
+            <div class="uni-banner-text">
+                <div class="uni-banner-title">India Meteorological Department</div>
+                <div style="font-size:0.75rem; font-style:italic; opacity:0.8; margin:0.05rem 0;">and</div>
+                <div class="uni-banner-sub1">Keladi Shivappa Nayaka University of Agricultural and Horticultural Sciences, Shivamogga</div>
+                <div class="uni-banner-sub2">Gramin Krishi Mausam Sewa (GKMS)</div>
+                <div class="uni-banner-sub3">AgroMet Field Units (AMFU) &bull; Hiriyur &bull; Navile &bull; Brahmavar</div>
+                <div class="uni-banner-tagline">Delivering Weather-Based Agro Advisory Services for Climate-Resilient Farming</div>
+            </div>
+            <img class="uni-banner-logo logo-right" src="assets/logo_ksnuahs.png" alt="KSNUAHS Logo">
+        </div>
     </div>
     <div class="bg-animation">
         <div class="blob blob-1"></div>
